@@ -1,0 +1,166 @@
+---
+title: "HW_8"
+output:
+  html_document:
+    df_print: paged
+date: "2023-11-13"
+---
+
+
+#HW #8 Due 11:59 PM Monday November 13, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+###A
+Calculate the expectation of b_0 in a linear model with one predictor. You can use the fact that we already derived the expectation of b_1
+
+X: Independent variable
+Y: Dependent variable
+b_0 & b_1: Coefficients
+Ybar & Xbar: Sample Means
+
+b_0 = Ybar - b_1*Xbar
+
+E[b_0] = E[Ybar - b_1*Xbar]
+
+       = E[Ybar] - E[b_1*Xbar]
+
+       = E[Ybar] - E[b_1]*Xbar
+      
+Since the expectaction of Ybar is just the mean:
+       
+       = Ybar - E[b_1]*Xbar
+       
+We calculated the expectation of b_1 to be β1 so:
+
+       = Ybar - β1*Xbar
+
+Which is the final answer.
+
+
+
+##Question 2
+Install any of the necessary packages to make the code below run 
+```{r, eval = FALSE}
+
+library(tidyverse)
+library(ggpubr)
+library(datarium)
+
+data("marketing", package = "datarium")
+head(marketing, 4)
+
+```
+
+
+###A
+
+Fit a simple linear model regressing `sales` on `youtube` and plot the residuals, standardized and studentized residuals. Finally, plot the residuals against advertising budget on youtube
+
+```{r}
+
+
+model <- lm(sales ~ youtube, data = marketing)
+
+#Residuals
+plot(marketing$youtube, residuals(model))
+
+#Standardized Residuals
+plot(marketing$youtube, rstandard(model))
+
+#Studentized Residuals
+plot(marketing$youtube, rstudent(model))
+```
+
+###B 
+
+Comment on the appropriateness of such a linear model given the plots from part A.  
+
+Given the plots from part A, we can see that the random spread around the y=0 axis for each plot increases as Youtube marketing increases. This indicates homoscedasticity and these plots are not an appropriate linear model.
+
+
+
+###C
+Print the summary of the model.  In particular, interpret the slope parameter and its significance (or lack thereof).  
+
+```{r, eval = FALSE}
+summary(model)
+
+```
+The slope parameter for youtube is .047537. It is positive which indicates that the advertising budget increases as sales increase. The t-value of 17.67 is high indicating that this is a statistically significant result.
+
+###D
+
+Using this model, predict the sales response to a youtube observation of 175.  
+
+```{r}
+new_data <- data.frame(youtube = 175)
+
+
+predicted <- predict(model, newdata = new_data)
+
+predicted
+```
+
+##Question 3
+Install any of the necessary packages to make the code below run and print the first 6 rows of the `gala` data set.  
+
+```{r}
+library(faraway)
+data(gala, package = "faraway")
+head(gala)
+```
+
+###A
+
+Fit a simple linear model regressing `Species` on `Adjacent`.  Plot the residuals, standardized and studentized residuals and comment on the appropriateness of the current linear model.  
+
+```{r}
+model <- lm(Species ~ Adjacent, data = gala)
+
+#residuals
+plot(resid(model))
+
+#standardized residuals
+std_residuals <- rstandard(model)
+plot(std_residuals)
+
+#studentized residuals
+stud_residuals <- rstudent(model)
+plot(stud_residuals)
+```
+The plots in these models show some linearity, but they demonstrate some extreme outliers that make the plots inappropriate. 
+
+
+###B
+
+Now log transform both response and explanatory variables and refit the linear model.  That is, you should now be regressing `log(Species)` on `log(Adjacent)`. Plot the residuals, standardized and studentized residual for this new linear model and comment.  
+
+```{r}
+log_model <- lm(log(Species) ~ log(Adjacent), data = gala)
+
+#residuals
+plot(resid(log_model))
+
+#standardized residuals
+std_residuals_log <- rstandard(log_model)
+plot(std_residuals_log)
+
+#studentized residuals
+stud_residuals_log <- rstudent(log_model)
+plot(stud_residuals_log)
+
+```
+The plots of the log models show a consistent random spread over the y=0 axis. However, they do not demonstrate a linear trend and the model is inadequate as a linear model.
+
+###C 
+
+Finally, print the summary for this new model, and explain why this is still a very inadequate model 
+```{r}
+summary(log_model)
+```
+The p value for log(Adjacent) is .56 which is very high and shows that the model is not statistically significant in predicting log(Species).
+Additionally, the residual stand error is 1.581 which shows high variance in the data points from the fitted line. Lastly, the R-squared value is 0.01229 which is very low and shows that the model poorly illustrates the the effect of the response variable
+
+

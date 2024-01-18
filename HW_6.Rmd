@@ -1,0 +1,273 @@
+---
+title: "HW_6"
+output:
+  html_document:
+    df_print: paged
+date: "2023-10-30"
+---
+
+
+#HW #6 Due 11:59 PM Monday October 30, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+###A
+Let's say we have two variables X and Y. We regress Y on X and calculate B_0_hat and B_1_hat. Now let's say we instead regress X on Y, and we get (for the sake of avoiding confusion) C_0_hat and C_1_hat. What is the mathematical relationship between B_1_hat and C_1_hat? 
+
+hat = ^
+
+Regressing Y on X: Y = B_0^ + B_1^ * X
+
+
+
+Regressing X on Y: X = C_0^ + C_1^ * Y
+  
+
+B_1^ and C_1^ are the slopes calculated by regressing each of the variables. 
+
+X = C_0^ + C_1^ * (B_0^ + B_1^ * X) 
+  = C_0^ + C_1^ * B_0^ + C_1^ * B_1^ * X 
+
+X - C_0^  = C_1^ * B_0^ + C_1^ * B_1^ * X 
+
+X - C_0^ = C_1^ * (B_1^*x + B_0^)
+
+C_1^ = (X - C_0^)/(B_1^*x + B_0^)
+
+From this algebra, we can see that as C_1^ increases, B_1^ decreases and vice versa.
+
+###B 
+Now let's say we regress Y on 2X (that is, we double all the values of X) and we get (again for the sake of avoiding confusion) D_0_hat and D_1_hat. What is the mathematical relationship between B_1_hat and D_1_hat?
+
+If we regress Y on 2X, we would see that B_1^ would be twice as much as D_1^
+
+
+###C 
+Now let's say we regress 2Y on X (that is, we double all the values of Y) and we get (again for the sake of avoiding confusion) E_0_hat and E_1_hat. What is the mathematical relationship between B_1_hat and E_1_hat?
+
+If we regress 2Y on X, we would see that B_1^ would be half as much as E_1^
+
+###D
+Finally, let's say we regress 2Y on 2X (that is, we double all the values of both X and Y) and we get (again for the sake of avoiding confusion) F_0_hat and F_1_hat. What is the mathematical relationship between B_1_hat and F_1_hat? Also, what is the mathematical relationship between B_0_hat and F_0_hat? 
+
+If we regress 2Y on 2X, we would see that B_1^ would be equal to F_1^
+
+Given 2Y = B_0^ +B_1^ * 2X
+
+B_0^ = 2Y - B_1^ * 2X
+
+and
+
+F_0^ = 2Y - F_1^ * 2X
+
+So B_0_hat and F_0_hat should be equal as well.
+
+##Question2
+###A
+Let X be vector of length 100 where each entry is a draw from a normal(10, 2) distribution. Let Y be a vector of length 100 where each  y_i = 3*x_i + epsilon_i  where each epsilon_i is an iid Normal RV with mean 0 and sd = 5.   
+
+Create a matrix of length 1000. For each row of the matrix, generate a new 100 length vector X and a corresponding 100 length vector Y. Regress Y on X. Put the estimated intercept from each regression in the first column, and the estimated slope in the second column. Finally, plot 2 histograms, one for each of these estimates, and comment on your results. 
+
+```{r}
+  result <- matrix(nrow = 1000, ncol = 2)
+  
+  for(i in 1:1000) {
+    X <- rnorm(100, mean = 10, sd = 2)
+    epsilon <- rnorm(100, mean = 0, sd = 5)
+    Y <- 3 * X + epsilon
+    
+    model <- lm(Y ~ X)
+
+    result[i, 1] <- model$coefficients[1]
+    result[i, 2] <- model$coefficients[2]
+  }
+  
+  #Intercept histogram:
+  hist(result[, 1])
+  #Slope histogram:
+  hist(result[, 2])
+
+```
+The histogram of intercepts is centered around 0 which makes sense because the true intercept should be at 0. It is shaped like a bell-curve because of the high-number of samples.
+
+The histogram of slopes is centered around 3 which makes sense because the slope is 3.It is shaped like a bell-curve because of the high-number of samples.
+
+
+
+###B 
+Repeat part A, but now make each X a length 500 vector. Report on your results.
+```{r}
+  result2 <- matrix(nrow = 1000, ncol = 2)
+  
+  for(i in 1:1000) {
+    X <- rnorm(500, mean = 10, sd = 2)
+    epsilon <- rnorm(500, mean = 0, sd = 5)
+    Y <- 3 * X + epsilon
+    
+    model <- lm(Y ~ X)
+
+    result2[i, 1] <- model$coefficients[1]
+    result2[i, 2] <- model$coefficients[2]
+  }
+  
+  #Intercept histogram for 500: 
+  hist(result2[, 1])
+  #"Slope histogram for 500:
+  hist(result2[, 2])
+
+```
+The histogram of intercepts is still centered around 0 but is now much less spread out. This is due to the larger sample size reducing variability.
+
+Same for the histogram of slopes, it is still centered around 3 but it is now much less spread out due to the larger sample size. This is an example of the Central Limit Theorem
+
+###C 
+Repeat  part A, but now make each X a length 1000 vector. Report on your results, and note any effects from changing the sample size, comparing A, B and C. 
+```{r}
+  result3 <- matrix(nrow = 1000, ncol = 2)
+  
+  for(i in 1:1000) {
+    X <- rnorm(1000, mean = 10, sd = 2)
+    epsilon <- rnorm(1000, mean = 0, sd = 5)
+    Y <- 3 * X + epsilon
+    
+    model <- lm(Y ~ X)
+
+    result3[i, 1] <- model$coefficients[1]
+    result3[i, 2] <- model$coefficients[2]
+  }
+  
+  #Intercept histogram for 1000: 
+  hist(result3[, 1])
+  #"Slope histogram for 1000:
+  hist(result3[, 2])
+```
+The histograms are becoming tighter due to decreasing variability. However, the histograms became much tighter from A to B rather than B to C.
+
+
+###D
+Repeat part A, but this time double the standard deviation of each epsilon_i. Discuss your results as compared to part A.
+```{r}
+  result4 <- matrix(nrow = 1000, ncol = 2)
+  
+  for(i in 1:1000) {
+    X <- rnorm(100, mean = 10, sd = 2)
+    epsilon <- rnorm(100, mean = 0, sd = 10)
+    Y <- 3 * X + epsilon
+    
+    model <- lm(Y ~ X)
+
+    result4[i, 1] <- model$coefficients[1]
+    result4[i, 2] <- model$coefficients[2]
+  }
+  
+  #Intercept histogram with doubled sd:
+  hist(result4[, 1])
+  #Slope histogram with doubled sd: 
+  hist(result4[, 2])
+
+```
+The centers of the histograms remain the same, but the variability greatly increased. The distributions still have a bell curve due to the CLT. 
+
+
+##Question 3
+
+Repeat Question 2 Parts A and B, but this time, don't have Y be based on X at all, just have it be an independent vector with normally distributed entries with the same mean and sd as the Y in question 2. Comment on your observations. 
+
+```{r}
+  # Create matrices to store results
+  resulta <- matrix(nrow = 1000, ncol = 2)
+  resultb <- matrix(nrow = 1000, ncol = 2)
+  
+  
+  for(i in 1:1000) {
+    X <- rnorm(100, mean = 10, sd = 2)
+    Y <- rnorm(100, mean = 10, sd = 2)
+    
+    model <- lm(Y ~ X)
+    
+    resulta[i, 1] <- model$coefficients[1]
+    resulta[i, 2] <- model$coefficients[2]
+  }
+  
+
+  for(i in 1:1000) {
+    X <- rnorm(500, mean = 10, sd = 2)
+    Y <- rnorm(500, mean = 10, sd = 2)
+    
+    model <- lm(Y ~ X)
+    
+    resultb[i, 1] <- model$coefficients[1]
+    resultb[i, 2] <- model$coefficients[2]
+  }
+  
+  # Histograms with x & y independent
+  hist(resulta[, 1])
+  hist(resulta[, 2])
+  
+  # Histograms for x & y independent size 500
+  hist(resultb[, 1])
+  hist(resultb[, 2])
+
+```
+Both histograms that cover slope are centered around 0 meaning that there is no relationship between X and Y. They histograms also have an incredibly small range.
+
+The histogram for intercepts are centered around 10 which makes sense because the means are 10 and there is no dependency between X and Y.
+
+##Question 4: Anscombe's quartet, or the power of visualization
+
+Run the following code to attach the anscombe dataset to your environment.  
+```{r}
+library(datasets)
+attach(anscombe)
+
+```
+
+##A
+Fit 4 separate simple linear regressions using the variables from the Anscombe dataset: y1 ~ x1, y2 ~ x2, y3 ~ x3 and y4 ~ x4, and report the summaries
+```{r}
+model1 <- lm(y1 ~ x1, data = anscombe)
+model2 <- lm(y2 ~ x2, data = anscombe)
+model3 <- lm(y3 ~ x3, data = anscombe)
+model4 <- lm(y4 ~ x4, data = anscombe)
+
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+
+
+```
+
+Comment on anything you notice about these 4 different models.
+
+From the summaries we can see that the linear regression models are very similar. They all have intercepts close to 3 and slopes close to .5. They all have similar standard errors around 1.1 for the intercept and around 0.1 for the slope. The residual standard errors are around 1.23.
+
+These 4 different models have come from differing distributions but have similar summaries.
+
+
+
+##B
+Plot the variables from each of the regressions, that is plot y1 vs x1, y2 vs y2, etc. 
+```{r}
+
+plot(anscombe$x1, anscombe$y1, main = "y1 vs x1")
+abline(model1, col = "red")
+
+# Plotting y2 vs x2
+plot(anscombe$x2, anscombe$y2, main = "y2 vs x2")
+abline(model2, col = "red")
+
+# Plotting y3 vs x3
+plot(anscombe$x3, anscombe$y3, main = "y3 vs x3")
+abline(model3, col = "red")
+
+# Plotting y4 vs x4
+plot(anscombe$x4, anscombe$y4, main = "y4 vs x4")
+abline(model4, col = "red")
+
+```
+
+Do these variables appear to show the same relationship? Comment on what you were expecting after part A, and whether and how these plots confirmed or defied your expectations  
+
+I was expecting the plots to look similar but they are all completely different. The lines of best fit look exactly the same which makes sense from the summary data. This defied my expectations and shows that looking at summary data and visualizing the data are both important to get the whole picture.

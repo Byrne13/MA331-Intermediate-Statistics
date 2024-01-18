@@ -1,0 +1,188 @@
+---
+title: "HW_9"
+output: pdf_document
+date: "2023-11-20"
+---
+
+
+#HW #9 Due 11:59 PM Monday November 20, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+
+How are returns on common stocks in overseas markets related to returns in U.S. markets? Consider measuring U.S. returns by the annual rate of return on the Standard & Poor’s 500 stock index and overseas returns by the annual rate of return on the Morgan Stanley Europe, Australasia, Far East (EAFE)index. Both are recorded in percents. We will regress the EAFE returns on the S&P 500 returns for the years 1993 to 2012. Here is part of the output for this regression:
+
+
+The regression equation is
+
+EAFE = - 0.168 + 0.845 S&P
+
+
+Analysis of Variance
+Source            DF         SS        MS        F
+Regression        [1]       4947.2   [4947.2]   [25.5]
+Residual Error    [17]     [3304.3]  [194.4]    [N/A]
+Total             19       8251.5
+
+Fill in all missing values (those with question marks), and draw a conclusion from this table using alpha = .05. Explain what your answer means.
+
+  Regression - Degrees of Freedom is 1 because the S&P 500 returns is the only variable in the model. The Mean Square is 4947.2/DFA = 4947.2. The F statistic is MSA/MSE = 4947.2 / 194.4 = 25.5
+  Residual Error - Degrees of Freedom is 19 total observations minus 2 estimated parameters which is 17.The Sum of Squares is the total SS minus the regression SS which is 8251.5 - 4947.2 = 3304.3. The Mean Square is SSE/DFE = 194.4. There is no F statistic for the error.
+  Because the regression f-statistic of 25.5 is much greater than the alpha value of .05, then the regression is statistically significant and with 95% confidence there is a relationship between the returns of the the two stock indices. 
+  
+
+
+##Question 2: From normal to chi-squared to F
+###A 
+Generate 5000 independent standard normal random variables. Square each of these random variables. Plot the histogram of these results. 
+```{r}
+  vars <- rnorm(5000)
+  vars_squared <- vars^2
+
+  hist(vars_squared, main = "Squared RV Histogram")
+```
+
+
+Look at the density of a chi-squared distribution with 1 degree of freedom by editing the code below and compare to your histogram 
+```{r}
+curve(dchisq(x, df = 1),from = 0, to= 12)
+```
+They have a similar shape as expected.
+
+
+###B
+For 5000 replicates, generate 20 independent standard normal random variables. Square each of these random variables and take their sum. Plot the histogram of these results. 
+```{r}
+  sums <- rep(0, 5000)
+
+
+  for (i in 1:5000) {
+    random_vars <- rnorm(20)
+    
+    sums[i] <- sum(random_vars^2)
+  }
+
+  hist(sums, main = "5000 Repition, 20 Squared RV Histogram")
+```
+
+
+Look at the density of a chi-squared distribution with 20 degrees of freedom by editing the code below and compare to your histogram
+```{r}
+curve(dchisq(x, df = 20),from = 0, to= 50)
+
+```
+They have a similar shape as expected.
+
+###C 
+For 5000 replicates, generate 50 independent standard normal random variables. Square each of these random variables and take their sum. Plot the histogram of these results. 
+
+```{r}
+  sums <- rep(0, 5000)
+
+
+  for (i in 1:5000) {
+    random_vars <- rnorm(50)
+    
+    sums[i] <- sum(random_vars^2)
+  }
+
+  hist(sums, main = "5000 Repition, 50 Squared RV Histogram")
+```
+
+Look at the density of a chi-squared distribution with 50 degrees of freedom by editing the code below and compare to your histogram
+```{r}
+curve(dchisq(x, df = 50),from = 20 , to= 90)
+
+
+```
+They have a similar shape as expected.
+
+###D
+For 5000 replicates, generate a standard normal random variable. Square each of these random variables. Also generate 20 independent standard normal random variables. Square each of these random variables and take their sum. In each replicate, divide the first squared normal RV by 1. Divide  the second sum of squared normal RVs by 20. Divide the first quotient by the second quotient Plot the histogram of these results. 
+```{r}
+  quotients <- rep(0, 5000)
+
+  for (i in 1:5000) {
+    
+    single_rv_squared <- rnorm(1)^2
+    
+    SS <- sum(rnorm(20)^2)
+    
+    quotients[i] <- (single_rv_squared / 1) / (SS / 20)
+  }
+
+  hist(quotients, main = "Quotient Histogram")
+```
+
+
+Look at the density of an F-distribution with 1 and 20 degrees of freedom by editing the code below and compare to your histogram
+
+```{r}
+curve(df(x, df1 = 1, df2 = 20),from = 0, to=10)
+
+```
+They have a similar shape as expected.
+
+
+
+For 5000 replicates, generate 20 independent standard normal random variables. Square each of these random variables and take their sum. Also generate 50 independent standard normal random variables. Square each of these random variables and take their sum. In each replicate, divide the first sum of squared normal RVs by 20. Divide the second sum of squared normal RVs by 50. Divide the first quotient by the second quotient. Plot the histogram of these results. 
+```{r}
+  quotients <- rep(0, 5000)
+
+  for (i in 1:5000) {
+    
+    sum_20 <- sum(rnorm(20)^2)
+
+    sum_50 <- sum(rnorm(50)^2)
+    
+    quotients[i] <- (sum_20/ 20) / (sum_50/ 50)
+  }
+
+  hist(quotients, main = "Double Quotient Histogram")
+```
+
+
+
+Look at the density of an F-distribution with 20 and 50 degrees of freedom by editing the code below and compare to your histogram
+
+```{r}
+curve(df(x, df1 = 20, df2 = 50),from = 0, to=3.5)
+```
+They have a similar shape as expected.
+
+
+
+##Question 3: One-Way ANOVA
+###A
+We fit a one-way ANOVA using the iris dataset, where we look at the different petal widths by species. 
+```{r}
+aov(Petal.Width~Species, data=iris)
+
+```
+
+Using the output, finish the ANOVA table and draw your conclusion. Use alpha=.05.
+
+  Species MS = SSA/DFA = 40.2067
+  Residuals MS = SSE/DFE = 0.04188
+  Species F-stat = MSA/MSE = 960.01
+  Total DF 2+147 = 149
+  Total SS = 80.41333 + 6.15660 = 86.56993
+  
+  Analysis of Variance
+  Source            DF        SS         MS        F
+  Species           2       80.41333   40.2067   960.01
+  Residuals         147     6.15660    0.04188   
+  Total             149     86.56993
+  
+  
+  The very high F-Stat of 960.01 means that the species type is a statistically significant in predicting petal width in the iris dataset with 95% confidence.
+
+###B
+Fit a linear model regressing Petal.Width on Species, and print the summary. Using the output of the linear model, and your result from part A, explain how this regression gives us the same information we get from a one-way ANOVA. 
+```{r}
+  model <- lm(Petal.Width ~ Species, data = iris)
+
+  summary(model)
+```
+The summary shows that the F-statistic is in fact 960 and the the p value associated with it is extremely small meaning that the regression is significant. We also see that the degrees of freedom calculated are 2 and 147 like the table. The Sum of Squares is required to be manually calculated. 

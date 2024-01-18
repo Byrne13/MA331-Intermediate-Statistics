@@ -1,0 +1,171 @@
+---
+title: "HW_10"
+output:
+  html_document:
+    df_print: paged
+date: "2023-12-4"
+---
+
+
+#HW #10 Due 11:59 PM Monday, December 4, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+###A
+Let the log odds of event A occurring be equal to t. Find the probability that event A occurs in terms of t. 
+
+  The odds of A occurring is P(A)/(1-P(A))
+  
+  t = ln(P(A)/(1-P(A)))
+  
+  e^t = P(A)/(1-P(A))
+  
+  e^t * (1-P(A)) = P(A)
+  e^t - e^t*P(A) = P(A)
+  e^t = P(A) + e^t*P(A)
+  e^t = P(A)(1 + e^t)
+  P(A) = e^t/(1+e^t) 
+
+###B
+We said in the simple logistic regression model
+
+log-odds = B_0 + B_1 X_1
+
+What are the *odds* at point X_star?
+
+  log-odds at X_star = B_0 + B_1 X_star
+  
+  odds at X_star = e^(B_0 + B_1 X_star)
+
+
+###C
+Using your result from part B, what are the odds at point X_star + 1?
+Since X_star was arbitrary, can we say, in general, how an increase of 1 unit in X_1 changes the odds?   
+
+  log-odds at X_star + 1 = B_0 + B_1(X_star+1)
+                         = B_0 + B_1*X_Star + B_1
+  odds at X_star + 1     = e^(B_0 + B_1*X_Star + B_1)
+  
+  We see that, in general, an increase of 1 unit in X_1 changes the odds by a multiplicative increase of e^B_1
+                          
+    
+##Question 2       
+###A 
+Let's look again at the iris data. Plot the sepal length by species, and note which species is which, and describe what you see         
+```{r}
+head(iris)
+plot(iris$Sepal.Length ~ iris$Species)
+```
+  The first plot is for setosa, the second is for versiclor and the third is for virginica. The plots are in ascending order of mean sepal length. They have similar ranges, except for virginica having one lower outlier.
+
+###B
+What if we wanted to estimate the probability a particular iris is a versicolor based on its sepal length as the only predictor? Based on your answer to part A, explain why that might be difficult or misleading.
+
+  Estimating that a particular iris is a versicolor using sepal length as a predictor is particularly difficult due to the similarity in sepal length between versicolor and verginica irises. Their interquartile ranges are overlapping, so it is very likely that a slightly larger versicolor has the same sepal length as a slightly smaller virginica.
+
+
+###C
+Exercise: Fit a logistic regression model trying to predict whether an iris is a versicolor based on its sepal length. 
+Create a new variable called isVersicolor which will be 1 when the species is versicolor, and 0 otherwise. 
+Create another new variable SL_squared (the squared value of the sepal length).
+Fit a logistic model regressing isVersicolor on the sepal length and SL_squared  
+Display the summary of this model and comment on the estimated slopes and their p-values
+
+
+```{r}
+
+iris$isVersicolor <- rep(0, nrow(iris))
+
+for(i in 1:nrow(iris)) {
+  if(iris$Species[i] == 'versicolor') {
+    iris$isVersicolor[i] <- 1
+  }else {
+    iris$isVersicolor[i] <- 0
+  }
+}
+
+iris$SL_squared <- iris$Sepal.Length^2
+
+irisModel <- glm(isVersicolor ~ Sepal.Length + SL_squared, data = iris)
+
+summary(irisModel)
+  
+```
+  The estimated slope coefficient for Sepal Length is 2.86. For each unit increase in sepal length, the chance that the iris is versicolor increases greatly.
+  The estimated slope for SL_squared is -0.24. This verifies that the relationship between sepal length increasing and the odds of the iris being versicolor is a linear relationship and not an exponential one. 
+  The p-values of the coefficients are extremely low and suggest that the coefficients are statistically significant predictors.
+
+
+###D 
+Plot the observed sepal lengths in the dataset in the x-axis and the fitted.values of your model on the y-axis. Comment on the plot in light of part A, and describe whether this result seems to make sense  
+
+```{r}
+plot(iris$Sepal.Length, irisModel$fitted.values)
+```
+
+  The plot seems to have a clear range of values where the sepal length of the iris confidently shows a versicolor iris. This makes sense according to part A. Although there were some overlaps in the interquartile ranges, there is still a large portion where the sepal length indentifies a versicolor.
+
+
+##Question 3
+###A
+Let's look at the state.x77 dataset. Before we do anything else, run the following code to make sure it's a dataframe called state2
+```{r}
+state2 = data.frame(state.x77)
+```
+
+We'd like to predict Income using Illiteracy. Fit this simple regression model and report the result with any commentary.
+```{r}
+model <- lm(Income ~ Illiteracy, data = state2)
+
+summary(model)
+```
+  Due to the large negative coefficient for illiteracy with a significant p-value of .00151, there must be a strong negative relationship between illiteracy rates and income. 
+
+###B 
+What if we add the murder rate (Murder)  of each state as a predictor to our regression. Fit that model. Run an F-test comparing it to our previous model and report those results. Which model do you prefer and why?
+```{r}
+murderModel <- lm(Income ~ Illiteracy + Murder, data = state2)
+
+modelComp <- anova(model, murderModel)
+
+print(modelComp)
+```
+  Due to the high p-value of the f test of .4089, we see that the Murder predictor does not significantly improve the model. The first model is more preferable as adding the Murder rate does not improve the model's accuracy but hinders it.
+
+
+###C 
+fit a model trying to predict Income using all other variables in the dataset. Run an F-test comparing it to the model you preferred in part B and report those results. Which model do you prefer and why? 
+```{r}
+fullModel <- lm(Income ~ ., data = state2)
+
+modelComp2 <- anova(model, fullModel)
+
+print(modelComp2)
+```
+  The p-value from the f test is now .0019 which is significantly small and shows that the new model is significantly better so I prefer it. Although it is complex due to the amount of variable it introduces, modelling the income against every other variable seems to be strong.
+
+###D 
+Print the summary of your chosen model so far, and describe whether you think this is a good enough model, or how you might consider improving it. 
+```{r}
+summary(fullModel)
+```
+  When viewing the summary, we see that only the Population and the HS.Grad slopes have significant p-values of less than .05. This shows that the other variables are not strong predictors of income in this model. I would improve it by removing the non-relevant predictors, which will give us the most valuable data to analyze. I should not have assumed the model was good without looking at the summary.
+
+###E 
+Calculate the VIF for the Illiteracy rate in the model with all variables included. (Hint: the pertinent model used to calculate VIF should be on all other variables besides Income). Is this result cause for concern?
+```{r}
+illiteracyModel <- lm(Illiteracy ~ . - Income, data = state2)
+
+r_squared <- summary(illiteracyModel)$r.squared
+
+vif_illiteracy <- 1 / (1 - r_squared)
+
+print(vif_illiteracy)
+```
+  A VIF of 4.36 indicates moderate multicollinearity which means illiteracy is slightly related to the other predictors in the model. This means that the model has wider confidence intervals so the model is not very strong but also not very weak.
+
+
+
+
+

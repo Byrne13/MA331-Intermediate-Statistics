@@ -1,0 +1,227 @@
+---
+title: "Jack Byrne HW 3"
+output: pdf_document
+date: "2023-09-25"
+---
+
+
+#HW #3 Due 11:59 PM Monday September 25, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to Question 1 using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to Questions 2 - 5 as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+Let there be 2 classes of senior students in a high school. The high school has a total of 89 seniors. 34 seniors in the first class are taking AP tests this year. There are 40 seniors in the second class. 64 seniors from this school in total are taking AP tests this year. 
+
+###A) What is the probability that a senior picked at random is not taking AP tests this year?
+
+A = Senior not taking AP Tests
+
+Seniors taking APs = 64
+Total seniors = 89
+
+P(A) = # of seniors not taking ap tests / # of seniors
+  = (89 - 64) / 89
+  = 25 / 89
+  = .2809
+
+###B) What is the probability that a senior picked at random is in the first class and is not taking AP tests this year?
+
+A = Senior not taking AP Tests
+B = Senior is in the first class
+
+Seniors in the second class = 40
+Seniors in the first class = 89-40 = 49
+Seniors in the first class taking APs = 34
+Seniors in the first class not taking APs = 49-34 = 15
+
+P(A AND B) = 15 / 89 
+           = .1685
+
+###C) What is the probability that a senior in the first class picked at random is not taking AP tests this year?
+
+A = First Class Senior not taking APS
+B = Senior is in First Class
+
+49 Seniors in the First Class
+34 Seniors in the First Class taking APs
+15 Seniors in the First Class not taking APs
+
+P(B) = # of first class seniors / # of seniors
+     = 49 /89
+     = .5506
+
+P(A AND B) = 15 / 89
+           = .1685
+
+P(A|B) = P (A AND B) / P(B)
+       = .1685 / .5506
+       = .3061
+     
+
+
+###D) What is the probability that a senior picked at random who is not taking AP tests this year is in the first class?
+
+A = A senior in the first class
+B = A senior not taking AP
+
+P(B) = # of seniors not taking APs / # of seniors
+     = 25 / 89
+     = .2809
+     
+P(A AND B) = # of first class seniors not taking APs / # of seniors
+           = 15 / 89
+           = .1685
+           
+P(A|B) = P (A AND B) / P(B)
+       = .1685 / .2809
+       = .5995
+       
+      
+      Also:
+      15 seniors in first class not taking aps
+      /
+      25 seniors not taking AP tests
+      = .6
+      
+###E) Assume the probability of a senior taking APs reflected in this school (across both classes) is actually the true population parameter. If I were to draw a sample of 8 seniors from the general population, what is the probability that at least 2 of them are taking APs this year?    
+
+P(X = k) = (n k) * p^k * (1-p)^(n-k)
+
+n = 8
+p = # of seniors taking an AP test / # of seniors
+  = 64 / 89
+  = .7191
+
+P(X=0) = (8 0) * .7191^0 * (1-.7191)^(8-0)
+       = 1 * 1 * .2809^8 
+       = .00004
+       
+P(X=1) = (8 1) * .7191^1 * (1-.7191)^(8-1)
+       = 8 * .7191 * .2809^7
+       = .00033
+
+P(X >= 2) = 1 - ( P(X = 0) + P(X = 1) )
+          = 1 - (0.00004 + 0.00033)
+          = .99963
+
+##Question 2  
+###A) Calculate the 1st, 2nd, and 3rd sample moments for the following data
+
+
+
+```{r}
+momentData <- c(87, 54, 93, 62, 25, 99, 83, 36, 25, 38, 86, 18, 96, 95, 64, 47, 63, 85, 91, 73, 32, 52, 69, 30, 87)
+
+meanData <- mean(momentData)
+
+first <- mean((momentData - meanData)^1)
+second <- mean((momentData - meanData)^2)
+third <- mean((momentData - meanData)^3)
+
+print(first)
+print(second)
+print(third)
+
+```
+
+
+###B) Find the method of moments estimate for the population variance of momentData, as well as s^2 for this data.  
+
+```{r}
+momentData <- c(87, 54, 93, 62, 25, 99, 83, 36, 25, 38, 86, 18, 96, 95, 64, 47, 63, 85, 91, 73, 32, 52, 69, 30, 87)
+
+sample_var <- var(momentData)
+
+print("Sample Variance s^2 and population variance are equal:")
+print(sample_var)
+
+
+```
+
+
+##Question 3
+
+Let W be a random variable that takes on the values 1, 2, 3, 4,... 49, 50 
+with probabilities  (1^2)/sum((1:50)^2), (2^2)/sum((1:50)^2), (3^2)/sum((1:50)^2), ... (49^2)/sum((1:50)^2),  (50^2)/sum((1:50)^2).
+
+Calculate the expected value of W conditional on W having taken on a value that is a perfect square. Remember to make sure your probabilities sum to 1. 
+
+```{r}
+
+#P(A|B) = P(A AND B) / P(B)
+#B: W is a perfect square
+#A: probability of a specific perfect square
+
+all_values <- 1:50
+sum_of_all_squares <- sum((all_values)^2)
+all_probs_of_W <- (all_values^2) / sum((1:50)^2)
+
+perfect_squares <- c(1, 4, 9, 16, 25, 36, 49)
+prob_b <- sum(all_probs_of_W[perfect_squares])
+
+print("probs of W sum up to 1:")
+print(sum(all_probs_of_W))
+
+conditional_probs <- all_probs_of_W[perfect_squares] / prob_b
+
+print("conditional probs sum up to 1:")
+print(sum(conditional_probs))
+
+expected_value <- sum(perfect_squares * conditional_probs)
+
+print("expectted value:")
+print(expected_value)
+
+```
+
+##Question 4
+We mentioned that the sample variance s^2 is also a statistic, so it has a sampling distribution.
+
+For 1000 replicates, sample from a normal(0, 3) distribution and calculate the sample variance and make a histogram. Do this a few times (but only plot one histogram), and remark upon the shape of the distribution  
+
+
+```{r}
+sample_variances <- rep(0,1000)
+
+for (i in 1:1000) {
+  sample_data <- rnorm(30, mean = 0, sd = 3)
+  sample_variances[i] <- var(sample_data)
+}
+
+hist(sample_variances)
+
+
+```
+The histogram's data is clustered around 9. The spread is around 5-20 with a normal shape and slight right skew. 
+
+##Question 5
+
+##A) Calculate the covariance between the first 4 columns in the iris dataset (that is, iris[, 1:4] ). 
+```{r}
+covariance <- cov(iris[, 1:4])
+print(covariance)
+```
+
+
+##B) Calculate the correlation between the first 4 columns in the iris dataset
+```{r}
+correlation <- cor(iris[, 1:4])
+print(correlation)
+```
+
+
+##C) plot the first 4 columns of the iris dataset against one another using the pairs command
+```{r}
+pairs(iris[, 1:4])
+```
+
+
+##D) Remark upon what information you can glean from the covariances, the correlations, and the variable plots. If you knew nothing about this dataset and only saw the information so far in this question, how many different types of irises would you think there were in the dataset? Explain your reasoning
+
+Because the high covariance of the Petal.Lengths (3.1162779) this indicates that there could be differentiating iris flower species. Because the Petal.Length and Petal.Width are both 1 in the correlation matrix, that shows as one changes then so does the other. From the pairs plot matrix, it looks like there are two different species of irises. Each box shows two groups of data that are separated. 
+
+##E) Now add the argument "col=iris$Species" (without the quotation marks) into the pairs() command to color the points by the true iris species. How does adding ground truth (as represented by color) change your perspective on this dataset? Knowing what you know now, if given the measurements for a single flower, do you think you'd be able to identify its species? Explain your reasoning
+```{r}
+pairs(iris[, 1:4],  col=iris$Species)
+```
+Adding the colors options revealed that there are three species of irises. I missed this because two species are grouped very close together. If given the specific measurements, I could identify the species because the 3 colored sections are distinctly separeted. 

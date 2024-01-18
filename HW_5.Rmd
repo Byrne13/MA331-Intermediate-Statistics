@@ -1,0 +1,273 @@
+---
+title: "HW_5"
+output:
+  html_document:
+    df_print: paged
+date: "2023-10-11"
+---
+
+
+#HW #5 Due 11:59 PM Wednesday October 11, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+###A
+Assume we are building a 95% confidence interval for a proportion where the number of trials is 1000 and the observed number of successes is 500. Report the endpoints of the confidence interval for the true proportion as well as the size of the margin of error 
+
++/- = plus or minus
+CI = Confidence Interval
+ME = Margin of Error
+SE = Standard Error
+
+p^ = sample proportion
+   = 500 successes / 1000 trials
+   = .5
+
+CI = p^ +/- ME
+   = p^ +/- Z * SE
+   = p^ +/- Z * √(p^ (1 - p^) / n)
+   = .5 +/- 1.96 * √(.5 * (1 - .5) / 1000)
+   = .5 +/- 1.96 * √(.25/1000)
+   = .5 +/- 1.96 * √(.00025)
+   = .5 +/- 1.96 * .01581
+   = .5 +/- .031
+
+Lower Endpoint = .5 - .031 
+               = .469
+Upper Endpoint = .5 + .031
+               = .531
+
+For a 95% confidence interval, the true proportion is from .469 to .531 with a margin of error of .031
+
+###B 
+Holding all else constant, what is the smallest number of samples we would need to take to ensure the margin of error is less than .01?
+
+ME = Z * SE
+.01 = ME 
+.01 = Z * √(p^ (1 - p^) / n)
+.01 = Z * √(.5 (1 - .5) / n)
+.01 = 1.96 * √(.25 / n)
+.01 / 1.96 = .25 / n
+(.01 / 1.96)^2 = .25 / n
+n = .25 / (.01/1.96)^2
+n = .25 / ( .0001/ 3.8416)
+n = .25 * 3.8416 / .0001
+n = .9604 / .0001
+n = 9604
+
+n must be greater than 9604 for the margin or error to be less than .001
+ 
+###C 
+Holding all else constant, what is the highest confidence level we can take while still having the margin of error be less than .01?
+
+ME = Z * SE
+ME = Z * √(p^ (1 - p^) / n)
+.01 = Z * √(.5 (1 - .5) / 1000)
+.01 = Z * √(.25 / 1000)
+.01 = Z * .01581
+.01 / .01581 = Z
+Z = .633
+
+```{r}
+print(pnorm(.633))
+```
+  Using the calculated Z-score of .633, the confidence level is 73.66%
+
+##Question2
+###A
+A uniform(0, 2) distribution has pdf f(x) = 1/2 if X is between 0 and 2, and f(x) = 0 otherwise.
+
+Generate 1000 samples of a Normal(0, 1) RV called normalZeroSample
+Then Generate 1000 samples of a Normal(.5, 1) RV called normalThreeSample 
+Then Generate 1000 samples of a Normal(5, 1)  RV called normalFiveSample
+```{r}
+normalZeroSample <- rnorm(1000, 0, 1)
+normalHalfSample <- rnorm(1000, .5, 1)
+normalFiveSample <- rnorm(1000, 5, 1)
+
+ 
+# Plotting the histogram of the First distribution in Red
+hist(normalZeroSample, breaks=30, xlim=c(-5,10), col=rgb(1,0,0,0.5), xlab="values", 
+     ylab="number of observations", main="Plotting 3 distributions" )
+
+# Second with add=T to plot on top in Blue
+hist(normalHalfSample, breaks=30, xlim=c(-5,10), col=rgb(0,0,1,0.5), add=T)
+
+# Third with add=T to plot on top in Green
+hist(normalFiveSample, breaks=30, xlim=c(-5,10), col=rgb(0,1,0,0.5), add=T)
+
+
+```
+
+Are these distributions completely separate? Even so, do you think you'd be able to distinguish between them? Which distribution looks least like the others? 
+
+  These distributions are not completely separate. They are the same shape, but they are centered at three different means. Without the coloring, the first two distributions would be hard to distinguish because they are only slightly off. However, the third distribution is farther off and easy to see. 
+
+###B 
+Build a 95% confidence interval to estimate the expected values of each of these distributions and report the results. You can use the true population standard deviations but build the CI's around the sample means. Are we able to say with 95% confidence that the true expected value of these distributions are different from 0? Why or why not?
+```{r}
+meanNormalZeroSample <- mean(rnorm(1000, 0, 1))
+meanNormalHalfSample <- mean(rnorm(1000, .5, 1))
+meanNormalFiveSample <- mean(rnorm(1000, 5, 1))
+
+z = 1.96
+
+MarginErrorZero = z * (1 / sqrt(1000))
+MarginErrorHalf = z * (1 / sqrt(1000))
+MarginErrorFive = z * (1 / sqrt(1000))
+
+ConfidenceIntervalZeroLow = meanNormalZeroSample - MarginErrorZero
+ConfidenceIntervalZeroHigh = meanNormalZeroSample + MarginErrorZero
+
+ConfidenceIntervalHalfLow = meanNormalHalfSample - MarginErrorHalf
+ConfidenceIntervalHalfHigh = meanNormalHalfSample + MarginErrorHalf
+
+ConfidenceIntervalFiveLow = meanNormalFiveSample - MarginErrorFive
+ConfidenceIntervalFiveHigh = meanNormalFiveSample - MarginErrorFive
+
+print(paste("Zero: [",ConfidenceIntervalZeroLow ,",", ConfidenceIntervalZeroHigh ,"]"))
+print(paste("Half: [",ConfidenceIntervalHalfLow ,",", ConfidenceIntervalHalfHigh ,"]"))
+print(paste("Five: [",ConfidenceIntervalFiveLow ,",", ConfidenceIntervalFiveHigh ,"]"))
+```
+  The results show that distribution with a mean of 0 includes 0 within its interval, so we can't say with 95% confidence that the true expected value is not 0. 
+  However, the distributions for mean of .5 and 5 do not include 0 within their confidence intervals. This means that we can say with 95% confidence that the true expected value is different than 0.
+
+##C
+Let's say we built a smaller sample and we also wanted more confidence. Imagine we had only taken 20 samples, but got the same exact sample means as earlier. Build a 99% confidence interval around these sample means. With only 20 samples, would we able to say with 99% confidence that the true expected value of these distributions are different from 0? Why or why not? 
+```{r}
+#previous sample means
+meanNormalZeroSample <- mean(rnorm(1000, 0, 1))
+meanNormalHalfSample <- mean(rnorm(1000, .5, 1))
+meanNormalFiveSample <- mean(rnorm(1000, 5, 1))
+
+#z value for 99%
+z = 2.576
+
+#calculating margin of error with 20 samples
+MarginErrorZero = z * (1 / sqrt(20))
+MarginErrorHalf = z * (1 / sqrt(20))
+MarginErrorFive = z * (1 / sqrt(20))
+
+ConfidenceIntervalZeroLow = meanNormalZeroSample - MarginErrorZero
+ConfidenceIntervalZeroHigh = meanNormalZeroSample + MarginErrorZero
+
+ConfidenceIntervalHalfLow = meanNormalHalfSample - MarginErrorHalf
+ConfidenceIntervalHalfHigh = meanNormalHalfSample + MarginErrorHalf
+
+ConfidenceIntervalFiveLow = meanNormalFiveSample - MarginErrorFive
+ConfidenceIntervalFiveHigh = meanNormalFiveSample - MarginErrorFive
+
+print(paste("Zero: [",ConfidenceIntervalZeroLow ,",", ConfidenceIntervalZeroHigh ,"]"))
+print(paste("Half: [",ConfidenceIntervalHalfLow ,",", ConfidenceIntervalHalfHigh ,"]"))
+print(paste("Five: [",ConfidenceIntervalFiveLow ,",", ConfidenceIntervalFiveHigh ,"]"))
+```
+  Now the results show that both the distributions with means 0 and .5 include 0 in their confidence intervals, so with 99% confidence their expected values are different than 0. 
+  However, the distribution with a mean of 5 has a confidence interval far from 0 and it can be said with 99% confidence that its expected value is not 0.
+
+
+##D 
+Let's show that these are equivalent to Hypothesis tests. Assuming we know the true standard deviation and that the distribution is normal, test the 3 null hypotheses that each of these samples of size 1000 are drawn from a distribution with expected value of 0, versus the alternative hypothesis that the expected value is greater than 0. Set alpha = .05. Use the pnorm() function, noting that because we are looking at the probability in the upper tail, our p-value will be 1 minus the relevant output of pnorm(). Find the p-values, and interpret the meaning of your results        
+```{r}
+meanNormalZeroSample <- mean(rnorm(1000, 0, 1))
+meanNormalHalfSample <- mean(rnorm(1000, .5, 1))
+meanNormalFiveSample <- mean(rnorm(1000, 5, 1))
+
+null_hyp = 0
+
+zZero = (meanNormalZeroSample - null_hyp) / (1 / sqrt(1000))
+zHalf = (meanNormalHalfSample - null_hyp) / (1 / sqrt(1000))
+zFive = (meanNormalFiveSample - null_hyp) / (1 / sqrt(1000))
+
+pZero = 1 - pnorm(zZero)
+pHalf = 1 - pnorm(zHalf)
+pFive = 1 - pnorm(zFive)
+
+print(pZero)
+print(pHalf)
+print(pFive)
+
+```
+  If alpha is .05, then we fail to reject the null hypothesis for the distribution with a mean of zero, because the p value calculated was greater than .05: it was .88.
+  However, the p values of the distributions with means .5 and 5 are 0, meaning that we can reject the null hypothesis for both.
+
+##E
+Repeat Part D, but this time assume our sample size was only 20 (although the sample means are unchanged), and that our new alpha level is .01. 
+```{r}
+meanNormalZeroSample <- mean(rnorm(1000, 0, 1))
+meanNormalHalfSample <- mean(rnorm(1000, .5, 1))
+meanNormalFiveSample <- mean(rnorm(1000, 5, 1))
+
+null_hyp = 0
+
+zZero = (meanNormalZeroSample - null_hyp) / (1 / sqrt(20))
+zHalf = (meanNormalHalfSample - null_hyp) / (1 / sqrt(20))
+zFive = (meanNormalFiveSample - null_hyp) / (1 / sqrt(20))
+
+pZero = 1 - pnorm(zZero)
+pHalf = 1 - pnorm(zHalf)
+pFive = 1 - pnorm(zFive)
+
+print(pZero)
+print(pHalf)
+print(pFive)
+```
+  If alpha is .01, then we fail to reject the null hypothesis for the distribution with a mean of zero, because the p value calculated is always greater than .01.
+  Furthermore, the p value for the distribution with a mean of five always has a p score of 0 and in this case the null hypothesis is always rejected.
+  However, the p value for the distribution with a mean of .5 sometimes has a p score greater than .01 and sometimes has a  p score that is lesser. This variability is due to the small sample size. Most of the time, the p score comes out greater than .01 so the null hypothesis is rejected.
+
+
+##F
+In parts A-E, we assumed these data aren't paired. Let's assume instead that we have paired data. Write code to sort the 1000 samples centered at 0, then to sort the 1000 samples centered at 1/2. Find the correlation between these newly sorted samples and report it. Then take the difference between those newly sorted samples. You should have another vector of length 1000.
+
+Report the sample mean and sample standard deviation of this difference vector. 
+
+```{r}
+normalZeroSample <- rnorm(1000, 0, 1)
+normalHalfSample <- rnorm(1000, 0.5, 1)
+
+sortedZero <- sort(normalZeroSample)
+sortedHalf <- sort(normalHalfSample)
+
+
+correlation <- cor(sortedZero, sortedHalf)
+print(paste("Correlation of the sorted samples: ", correlation))
+
+diffs <- sortedHalf - sortedZero
+
+meanDiff <- mean(diffs)
+sdDiff <- sd(diffs)
+
+print(paste("Sample mean of the differences: ", meanDiff))
+print(paste("Sample standard deviation of the differences: ", sdDiff))
+```
+##G
+Using the sample mean and sample standard deviation you found for the difference of "paired data," build a 99% confidence interval of the expected value of this difference. You can assume the sample standard deviation is the true population standard deviation, and you should also assume we for these values using only 20 paired samples. Can we say with 99% confidence the expected value of this difference is different from 0?
+
+```{r}
+normalZeroSample <- rnorm(1000, 0, 1)
+normalHalfSample <- rnorm(1000, 0.5, 1)
+
+sortedZero <- sort(normalZeroSample)
+sortedHalf <- sort(normalHalfSample)
+
+diffs <- sortedHalf - sortedZero
+
+meanDiff <- mean(diffs)
+sdDiff <- sd(diffs)
+
+z <- 2.576
+
+marginError <- z * (sdDiff / sqrt(20))
+
+low <- meanDiff - marginError
+high <- meanDiff + marginError
+
+print(paste("99% confidence interval: [", low, ",", high, "]"))
+
+```
+  Because the interval does not include 0, we can say with 99% confidence that the expected value of the difference is not 0.
+
+Remark on any difference that arises from taking the difference of this paired data rather than using the mean of the sample centered at 1/2.
+
+  When the data is analyzed pairwise, we can visualize the effect of changing the variable. The new confidence interval shows the range of the distribution while the other confidence interval represents the actual interval of the distribution? 

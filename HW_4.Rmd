@@ -1,0 +1,399 @@
+---
+title: "HW_4"
+output:
+  html_document:
+    df_print: paged
+date: "2023-10-2"
+---
+
+
+#HW #4 Due 11:59 PM Monday October 2, 2023
+
+All parts of this homework should be submitted to Canvas. Submit the answers to questions without an inserted code block using handwritten scanned notes or as a latex/typed up pdf file with justification. Submit the answers  to those questions with an inserted code block as the pdf file generated when knitting this report. If need be, combine these pdfs into a single file
+
+##Question 1
+A uniform(0, 2) distribution has pdf f(x) = 1/2 if X is between 0 and 2, and f(x) = 0 otherwise.
+
+###A)  Find the expected value of the sample mean of a sample of size 30 from a Uniform(0, 2), as well as the variance of the sample mean 
+
+X- = Sample mean
+
+E[X] = ∫a b x * f(x)dx
+     = ∫0 2 x * 1/2 dx
+     = 1/2[x^2 / 2]2 0
+     = 1/2[4/2 - 0/2]
+     = 1/2 * 2
+     = 1
+     
+E[X-] = 1
+
+
+E[X^2] = ∫a b x^2 * f(x)dx
+       = ∫0 2 x^2 * (1/ (2-0))dx
+       = 1/2 [x^3 /3]0 2
+       = 1/2 ((2^3/ 3) - (0^3 / 3))
+       = 1/2 (8/3)
+       = 4 / 3
+
+
+Var(X) = E[X^2] - (E[X])^2 
+       = 4/3 - 1 
+       = 4/3 - 3/3 
+       = 1/3
+
+
+Var(X-) = Var(X) / n
+        = 1/3 / 30
+        = 90
+        
+The expected value of the sample mean is 1 and the variance of the sample mean is 1/90.
+
+###B) Using a similar approach to the problem above, find the sample mean and variance of the sample mean for a sample of size 30 drawn from a Uniform(0, W), where W is some positive value. 
+X- = Sample mean
+
+E[X] = ∫a b x * f(x)dx
+     = ∫0 W x * 1/W dx
+     = 1/W[x^2 / 2]W 0
+     = 1/W[W^2/2 - 0^2/2]
+     = 1/W * W^2
+     = W/2
+     
+E[X-] = W/2
+
+
+E[X^2] = ∫a b x^2 * f(x)dx
+       = ∫0 W x^2 * (1/W)dx
+       = 1/W [x^3 /3]0 W
+       = 1/W ((W^3/ 3) - (0^3 / 3))
+       = 1/W (W^3/3)
+       = W^2 / 3
+
+
+Var(X) = E[X^2] - (E[X])^2 
+       = W^2/3 - (W/2)^2 
+       = (W^2 / 3) - (W^2 / 4) 
+       = 4W^2 - 3W^2
+       = W^2 / 12
+
+
+Var(X-) = Var(X) / n
+        = (W^2 / 12) / 30 
+        = W^2 / 360
+        
+
+###C) Now let's say we know the minimum possible value is 0, but we know the maximum value, that is, we don't know what W actually is, but we are trying to estimate it. (You can think of the example: how big is the tallest tree? We may not be able to survey every tree, but if tree heights are uniformly distributed -- they're not -- if we sample a few, maybe we can estimate how tall the tallest one is). Using the idea from part B), derive the method of moments estimator for W using our sample 
+
+
+E[X] = W/2
+
+W = 2 * E[X]
+
+
+###D) Take 1000 replicates of samples of size 30 from a Uniform(0, 5), that is, in each replicate, choose 30 numbers at random between 0 and 5 using the runif function. Even though in this case, we know W = 5, assume we didn't know that, and calculate the estimated method of moments estimate for W for each replicate, and plot a histogram of the results. 
+```{r}
+
+estimates_for_w <- rep(0,1000)
+
+for (i in 1:(length(estimates_for_w))){
+  sample <- runif(30, 0, 5)
+  sample_mean <- mean(sample)
+  estimate <- 2 * sample_mean
+  estimates_for_w[i] <- estimate
+}
+
+hist(estimates_for_w)
+
+```
+
+
+
+
+###E) Notice that for a Uniform(0, W) the pdf f(W) only takes on 2 values: 0 (for those outside the interval) and 1/W (for those in the interval). Notice as we change W, 1/W grows or shrinks. Since the likelihood is the product of the pdf at each value in our sample, argue that the way to maximize the likelihood is by estimating W as the largest value in our sample. You can do this by comparing the likelihood value when choosing *any* estimate of W that is either larger or smaller than the largest value in the sample. Hint: what happens to the pdf of the values when they are not in the interval, so subsequently, what happens to the likelihood of the whole sample?
+
+When x is between 0 and W, the likelihood of W is: 
+
+L(W) = f(x1) * f(x2) * ... * f(xn) = 1 / W^n
+
+To maximize the likelihood, we want W to be equal to the largest sample value. 
+If W is smaller than that value, then getting that value is impossible and the likelihood becomes 0.
+If W is larger than that largest sample value, then more possibilities are introduced. From the equation, as W increases, the likelihood decreases. 
+
+###F) Using the 1000 replicates of samples of size 30 from a Uniform(0, 5) from earlier (or a new sample), plot the Maximum Likelihood Estimate of W for each sample.
+```{r}
+  mle_estimates <- rep(0,1000)
+
+  for (i in 1:1000) {
+    sample_data <- runif(30, 0, 5)
+    
+    estimate <- max(sample_data)
+    
+    mle_estimates[i] <- estimate
+  }
+
+  hist(mle_estimates)
+```
+
+
+###G) Comment on the different results we get from the Method of Moments estimator vs the Maximum likelihood estimator, and note any benefits or drawbacks of the results from each method. 
+
+
+The MLE histogram was clustered at 5 with a range from 4.5 to 5.0. It is skewed to the left. 
+Although, the Method of Moments estimator can be easier to compute because you only need the sample mean, the MLE is much more accurate. It produced a tight range that was very close to the actual value of W = 5. 
+
+
+##Question 2
+###A) Since the expected value of a binomial(n, p) = np and the variance of a binomial(n, p) = np(1-p), if we took a sample of 20 binomial(50, .3) RVs, find the expected value of the sample mean, as well as the variance of the sample mean. 
+
+X- = Sample Mean
+
+n = 50
+
+E[X] = n * p
+     = 50 * .3
+     = 15
+     
+Var[X] = n * p * (1-p)
+       = 50 * .3 * .7
+       = 10.5
+
+n sample_size = 20 binomial RVs
+
+E[X-] = E[X] 
+      = 15
+
+Var[X-] = Var[X] / n
+        = 10.5 / 20
+        = .525
+
+###B) Take 1000 replicates of 20 binomial(50, .3) RVs and build 95% confidence intervals for all of them using the theoretical standard deviation of the sample mean (that is, using Z-scores from the standard normal distribution). Report the proportion of these confidence intervals that contain the true expected value of this distribution.  
+```{r}
+
+replicates <-1000
+
+binom_samples <- 20
+
+#captures 95%
+Z <- qnorm(.975)
+
+#Var[X] = 50* .3 *.7 = 10.5
+sample_var <- 10.5
+sigma <- sqrt(sample_var)
+
+SE <- sigma / sqrt(binom_samples)
+
+#E[X] = 50 * .3 = 15
+binom_ev <- 15
+
+
+contained_count <- 0
+
+for (i in 1:replicates) {
+  sample <- rbinom(binom_samples, 50, .3)
+  sample_mean <- mean(sample)
+  
+  upper_bound <- sample_mean + Z*SE
+  lower_bound <- sample_mean - Z*SE
+  
+  
+  if(lower_bound <= binom_ev && binom_ev <= upper_bound){
+    contained_count <- contained_count + 1
+  }
+}
+
+
+propotion <- contained_count / replicates
+
+print(propotion)
+
+
+```
+
+
+###C)Repeat the process from part B) 400 times, plot the histogram of the results,that is a histogram of the proportion of these confidence intervals in each replicate that contain the true expected value of this distribution, and comment on whether the coverage looks appropriate
+
+```{r}
+
+repeats <- 400
+
+proportions <- rep(0,repeats)
+
+for (j in 1:repeats){
+  replicates <-1000
+  
+  binom_samples <- 20
+  
+  #captures 95%
+  Z <- qnorm(.975)
+  
+  #Var[X] = 50* .3 *.7 = 10.5
+  sample_var <- 10.5
+  sigma <- sqrt(sample_var)
+
+  SE <- sigma / sqrt(binom_samples)
+  
+  #E[X] = 50 * .3 = 15
+  binom_ev <- 15
+  
+  
+  contained_count <- 0
+  
+  for (i in 1:replicates) {
+    sample <- rbinom(binom_samples, 50, .3)
+    sample_mean <- mean(sample)
+    
+    upper_bound <- sample_mean + Z*SE
+    lower_bound <- sample_mean - Z*SE
+    
+    
+    if(lower_bound <= binom_ev && binom_ev <= upper_bound){
+      contained_count <- contained_count + 1
+    }
+  }
+
+
+proportions[j] <- contained_count / replicates
+  
+}
+hist(proportions)
+```
+
+
+The histogram is spread from .93 to .97 with a bell curve. Most of the data is centered at .95, which is appropriate.
+
+###D) Repeat part C but instead of using the theoretical quantity for sigma, use the sample standard deviation for each sample of size 20, again using the Z-scores from the standard normal distribution. Comment on whether the coverage looks appropriate  
+```{r}
+repeats <- 400
+
+proportions <- rep(0,repeats)
+
+for (j in 1:repeats){
+  replicates <-1000
+  
+  binom_samples <- 20
+  
+  #captures 95%
+  Z <- qnorm(.975)
+  
+  #E[X] = 50 * .3 = 15
+  binom_ev <- 15
+  
+  
+  contained_count <- 0
+  
+  for (i in 1:replicates) {
+    sample <- rbinom(binom_samples, 50, .3)
+    sample_mean <- mean(sample)
+    
+    sample_sd <- sd(sample)
+    
+    sigma <- sample_sd / sqrt(binom_samples)
+    
+    upper_bound <- sample_mean + Z*sigma
+    lower_bound <- sample_mean - Z*sigma
+    
+    
+    if(lower_bound <= binom_ev && binom_ev <= upper_bound){
+      contained_count <- contained_count + 1
+    }
+  }
+
+
+proportions[j] <- contained_count / replicates
+  
+}
+hist(proportions)
+```
+The histogram is centered around .935 and spreads from .91 to .955. This increased variability and underestimation from the true proportion is due to the extra variability caused by using the sample standard deviation.
+
+###E) Repeat part C using the sample standard deviation for each sample of size 20, but this time using values from the t distribution instead of from the standard normal distribution. Comment on whether the coverage looks appropriate  
+```{r}
+repeats <- 400
+
+proportions <- rep(0,repeats)
+
+for (j in 1:repeats){
+  replicates <-1000
+  
+  binom_samples <- 20
+
+  degrees_of_freedom = binom_samples - 1
+  t_val <- qt(.975, degrees_of_freedom)
+  
+  #E[X] = 50 * .3 = 15
+  binom_ev <- 15
+  
+  contained_count <- 0
+  
+  for (i in 1:replicates) {
+    sample <- rbinom(binom_samples, 50, .3)
+    sample_mean <- mean(sample)
+    
+    sample_sd <- sd(sample)
+    
+    sigma <- sample_sd / sqrt(binom_samples)
+    
+    upper_bound <- sample_mean + t_val*sigma
+    lower_bound <- sample_mean - t_val*sigma
+    
+    
+    if(lower_bound <= binom_ev && binom_ev <= upper_bound){
+      contained_count <- contained_count + 1
+    }
+  }
+
+
+proportions[j] <- contained_count / replicates
+  
+}
+hist(proportions)
+```
+This histogram looks more appropriate because the data is centered closer to .95. The range is from .93 to .97, and the shape is bell-curved. Using the t-distribution helped account for the variability caused by the low number of binomial distribution samples: 20. 
+
+
+
+##F) Now repeat part D) but now instead of taking 20 replicates per sample, take 500 replicates per sample. Use the sample standard deviation for each sample of size 1000, and the Z-scores from the standard normal distribution. Comment on whether the coverage looks appropriate. How can you explain any difference in performance from this example to part D)? 
+
+```{r}
+repeats <- 400
+
+proportions <- rep(0,repeats)
+
+for (j in 1:repeats){
+  replicates <-1000
+  
+  binom_samples <- 500
+  
+  #captures 95%
+  Z <- qnorm(.975)
+  
+  #E[X] = 50 * .3 = 15
+  binom_ev <- 15
+  
+  
+  contained_count <- 0
+  
+  for (i in 1:replicates) {
+    sample <- rbinom(binom_samples, 50, .3)
+    sample_mean <- mean(sample)
+    
+    sample_sd <- sd(sample)
+    
+    sigma <- sample_sd / sqrt(binom_samples)
+    
+    upper_bound <- sample_mean + Z*sigma
+    lower_bound <- sample_mean - Z*sigma
+    
+    
+    if(lower_bound <= binom_ev && binom_ev <= upper_bound){
+      contained_count <- contained_count + 1
+    }
+  }
+
+
+proportions[j] <- contained_count / replicates
+  
+}
+hist(proportions)
+```
+
+The coverage also looks more appropriate than the histogram in D. The larger sample size of 500 per iteration causes the sampling distribution to approach a normal distribution.This is due to the Central Limit Theorem. The data is clustered around .95 which is accurate. 
